@@ -50,6 +50,12 @@ frontend/src/
 ## Deferred (PRD)
 Prediction (F6), favorite alerts (F8), admin heatmap dashboard (F10), analytics events.
 
+## Iteration log
+1. V1 core slice: simulated bus load, stop queues, next arrivals with remaining seats, rule-based advice, crowd feedback, route diagram, AI assistant (F1-F5, F7, F9 basics).
+2. Preview page: `/preview` plus the shared preview URL path registered in `App.tsx`; wildcard `*` route renders `NotFound` with links back to `/` and `/preview` (no blank screen).
+3. Authentication: app opens at `/login` (9-digit student ID + password, JWT in localStorage `token`); `/signup` auto-logs in; `/` is protected and redirects unauthenticated users to `/login`; logout button in the Index header. Student ID maps to synthetic email `<id>@campus.student` so the existing Users table/auth template is reused.
+4. README update only: documentation refreshed; no functional code changed.
+
 ## Conventions
 - API responses: `{ success, data, message? }`; types live in `shared/types`
 - Frontend imports shared code via `@shared/...`
