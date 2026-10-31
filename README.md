@@ -56,6 +56,8 @@ Prediction (F6), favorite alerts (F8), admin heatmap dashboard (F10), analytics 
 3. Authentication: app opens at `/login` (9-digit student ID + password, JWT in localStorage `token`); `/signup` auto-logs in; `/` is protected and redirects unauthenticated users to `/login`; logout button in the Index header. Student ID maps to synthetic email `<id>@campus.student` so the existing Users table/auth template is reused.
 4. README update only: documentation refreshed; no functional code changed.
 
+5. Login UI sync: login form has no name field; student ID input is 9 digits only (`maxLength=9`, `pattern=\d{9}`, non-digit/full-width characters filtered on input and paste with notice, `已输入 n/9 位` progress, PRD error copy, autofocus); submit button reads `验证并登录`.
+
 ## Conventions
 - API responses: `{ success, data, message? }`; types live in `shared/types`
 - Frontend imports shared code via `@shared/...`

@@ -77,14 +77,16 @@ const Signup = () => {
           <div className="flex items-center justify-between">
             <Label htmlFor="signup-student-id">学号</Label>
             <span className="text-xs text-muted-foreground" aria-live="polite">
-              {studentId.length}/{STUDENT_ID_LENGTH}
+              已输入 {studentId.length}/{STUDENT_ID_LENGTH} 位
             </span>
           </div>
           <Input
             id="signup-student-id"
+            type="text"
             inputMode="numeric"
+            pattern="\d{9}"
             autoComplete="username"
-            placeholder="请输入 9 位学号"
+            placeholder="请输入 9 位数字学号"
             maxLength={STUDENT_ID_LENGTH}
             value={studentId}
             aria-invalid={idInvalid}
@@ -95,7 +97,7 @@ const Signup = () => {
           />
           {idInvalid && (
             <p id="signup-student-id-error" className="text-sm text-destructive">
-              学号必须为 9 位数字
+              {studentId.length === 0 ? '请输入学号' : `学号须为 9 位数字，当前已输入 ${studentId.length} 位`}
             </p>
           )}
         </div>

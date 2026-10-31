@@ -13,6 +13,12 @@ import { STUDENT_ID_LENGTH, isValidStudentId } from '@shared/auth';
 import { useAuth } from '../../contexts/AuthContext';
 import AuthLayout from './AuthLayout';
 
+const getStudentIdError = (value: string): string => {
+  if (value.length === 0) return '请输入学号';
+  if (value.length < STUDENT_ID_LENGTH) return `学号须为 9 位数字，当前已输入 ${value.length} 位`;
+  return '';
+};
+
 const Login = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -21,6 +27,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [touched, setTouched] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [pasteNotice, setPasteNotice] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -31,11 +38,27 @@ const Login = () => {
 
   const idInvalid = touched && !isValidStudentId(studentId);
 
+  const handleStudentIdChange = (raw: string) => {
+    const digits = raw.replace(/\D/g, '').slice(0, STUDENT_ID_LENGTH);
+    setStudentId(digits);
+    setPasteNotice('');
+    setError('');
+  };
+
+  const handleStudentIdPaste = (text: string) => {
+    if (/\D/.test(text)) {
+      setPasteNotice('学号仅支持数字，已为你移除其他字符');
+    }
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setTouched(true);
     setError('');
-    if (!isValidStudentId(studentId)) return;
+    if (!isValidStudentId(studentId)) {
+      document.getElementById('student-id')?.focus();
+      return;
+    }
     if (password.length < 6) {
       setError('密码至少 6 位');
       return;
@@ -54,7 +77,7 @@ const Login = () => {
   };
 
   return (
-    <AuthLayout title="学号登录" subtitle="输入 9 位学号和密码，验证后进入公交主页。">
+    <AuthLayout title="学号验证登录" subtitle="仅需输入 9 位纯数字学号和密码，验证通过后进入公交主页。">
       <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
         {error && (
           <Alert variant="destructive">
@@ -67,27 +90,33 @@ const Login = () => {
           <div className="flex items-center justify-between">
             <Label htmlFor="student-id">学号</Label>
             <span className="text-xs text-muted-foreground" aria-live="polite">
-              {studentId.length}/{STUDENT_ID_LENGTH}
+              已输入 {studentId.length}/{STUDENT_ID_LENGTH} 位
             </span>
           </div>
           <Input
             id="student-id"
+            type="text"
             inputMode="numeric"
+            pattern="\d{9}"
             autoComplete="username"
-            placeholder="请输入 9 位学号"
+            autoFocus
+            placeholder="请输入 9 位数字学号"
             maxLength={STUDENT_ID_LENGTH}
             value={studentId}
             aria-invalid={idInvalid}
-            aria-describedby={idInvalid ? 'student-id-error' : undefined}
-            onChange={(e) => setStudentId(e.target.value.replace(/\D/g, '').slice(0, STUDENT_ID_LENGTH))}
+            aria-describedby="student-id-hint"
+            onChange={(e) => handleStudentIdChange(e.target.value)}
+            onPaste={(e) => handleStudentIdPaste(e.clipboardData.getData('text'))}
             onBlur={() => setTouched(true)}
             className="min-h-[44px]"
           />
-          {idInvalid && (
-            <p id="student-id-error" className="text-sm text-destructive">
-              学号必须为 9 位数字
-            </p>
-          )}
+          <p
+            id="student-id-hint"
+            aria-live="polite"
+            className={idInvalid ? 'text-sm text-destructive' : 'text-xs text-muted-foreground'}
+          >
+            {idInvalid ? getStudentIdError(studentId) : pasteNotice || '学号仅限 9 位数字，无需填写姓名'}
+          </p>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -115,7 +144,7 @@ const Login = () => {
 
         <Button type="submit" disabled={loading} className="min-h-[44px] cursor-pointer">
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
-          {loading ? '验证中...' : '登录'}
+          {loading ? '验证中...' : '验证并登录'}
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
